@@ -1,0 +1,123 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "quotes": [
+      "error",
+      "double",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
+    "max-len": [
+      "error",
+      {
+        "code": 100,
+        "tabWidth": 2,
+        "ignorePattern": "class [a-zA-Z]+ implements|class [a-zA-Z]+ extends|\"(.+)\"|`(.+)`",
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true
+      }
+    ],
+    "semi": [
+      "error",
+      "never"
+    ],
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline"
+      }
+    ],
+    "no-trailing-spaces": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "error"
+        ]
+      }
+    ],
+    "quote-props": [
+      "error",
+      "as-needed",
+      {
+        "keywords": true
+      }
+    ],
+    "sort-imports": "error",
+    "curly": "error",
+    "arrow-parens": [
+      "error",
+      "always"
+    ],
+    "eof-last": [
+      "error",
+      "always"
+    ],
+    "max-classes-per-file": [
+      "error",
+      1
+    ],
+    "no-empty": "error",
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 1,
+        "maxEOF": 1
+      }
+    ],
+    "@typescript-eslint/no-empty-interface": [
+      "error",
+      {
+        "allowSingleExtends": false
+      }
+    ],
+    "@typescript-eslint/no-namespace": "error",
+    "@typescript-eslint/no-var-requires": "error",
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "Object": {
+            "message": "Use {} instead.",
+            "fixWith": "object"
+          },
+          "String": {
+            "message": "Use \"\" instead.",
+            "fixWith": "string"
+          },
+          "Boolean": {
+            "message": "Use true or false instead.",
+            "fixWith": "boolean"
+          }
+        }
+      }
+    ],
+    "@typescript-eslint/explicit-member-accessibility": [
+      "error",
+      {
+        "accessibility": "no-public",
+        "overrides": {
+            "accessors": "off",
+            "constructors": "no-public",
+            "methods": "no-public",
+            "properties": "explicit",
+            "parameterProperties": "off"
+        }
+    }
+    ]
+  }
+}
