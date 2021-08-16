@@ -12,6 +12,7 @@ log.txt
 .vscode/
 npm-debug.log*
 
+.env
 .idea/
 .ionic/
 .sourcemaps/
@@ -30,6 +31,7 @@ plugins/ios.json
 $RECYCLE.BIN/
 postgres_dev/
 logfile
+todo.txt
 
 .DS_Store
 Thumbs.db
