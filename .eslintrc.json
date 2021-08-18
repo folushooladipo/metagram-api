@@ -9,6 +9,7 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
+    "indent": [ "error", 2 ],
     "quotes": [
       "error",
       "double",
@@ -84,6 +85,13 @@
     ],
     "require-await": "error",
     "space-in-parens": [ "error", "never" ],
+    "keyword-spacing": [
+      "error",
+      {
+        "before": true,
+        "after": true
+      }
+    ],
 
     "@typescript-eslint/no-empty-interface": [
       "error",
