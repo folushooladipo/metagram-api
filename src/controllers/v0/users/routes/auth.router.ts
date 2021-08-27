@@ -47,11 +47,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   // });
 }
 
-router.get("/verification", requireAuth,(req: Request, res: Response) => {
+router.get("/verification", requireAuth, (req, res) => {
   return res.status(200).send({auth: true, message: "Authenticated."})
 })
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", async (req, res) => {
   const email = req.body.email
   const password = req.body.password
   // check email is valid
@@ -84,7 +84,7 @@ router.post("/login", async (req: Request, res: Response) => {
 })
 
 //register a new user
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", async (req, res) => {
   const email = req.body.email
   const plainTextPassword = req.body.password
   // check email is valid
@@ -125,7 +125,7 @@ router.post("/", async (req: Request, res: Response) => {
   // res.status(201).send({token: jwt, user: savedUser.short()})
 })
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", (req, res) => {
   res.send("auth")
 })
 

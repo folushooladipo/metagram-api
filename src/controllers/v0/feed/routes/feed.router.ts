@@ -1,4 +1,4 @@
-import {Request, Response, Router} from "express"
+import {Router} from "express"
 
 import {FeedItem} from "../models/FeedItem"
 import {getPutSignedUrl} from "../../../../aws"
@@ -6,7 +6,7 @@ import {requireAuth} from "../../users/routes/auth.router"
 
 const router: Router = Router()
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (req, res) => {
   const items = await FeedItem.findAndCountAll({order: [["id", "DESC"]]})
   res.send(items)
 })
@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
 // update a specific resource
 router.patch("/:id",
   requireAuth,
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     //@TODO try it yourself
     res.send(500).send("not implemented")
   })
@@ -39,7 +39,7 @@ router.patch("/:id",
 // Get a signed url to put a new item in the bucket
 router.get("/signed-url/:fileName",
   requireAuth,
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     const {fileName} = req.params
     const url = getPutSignedUrl(fileName)
     res.status(201).send({url: url})
@@ -50,7 +50,7 @@ router.get("/signed-url/:fileName",
 // body : {caption: string, fileName: string};
 router.post("/",
   requireAuth,
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     const caption = req.body.caption
     const fileName = req.body.url
 
