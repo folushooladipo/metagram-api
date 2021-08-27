@@ -1,7 +1,7 @@
 import {Router} from "express"
 
+import {getGetSignedUrl, getPutSignedUrl} from "../../../../aws"
 import {FeedItem} from "../models/FeedItem"
-import {getPutSignedUrl} from "../../../../aws"
 import {requireAuth} from "../../users/routes/auth.router"
 
 const router: Router = Router()
@@ -61,43 +61,40 @@ router.patch("/:id", requireAuth, async (req, res) => {
 })
 
 // Get a signed url to put a new item in the bucket
-router.get("/signed-url/:fileName",
-  requireAuth,
-  async (req, res) => {
-    const {fileName} = req.params
-    const url = getPutSignedUrl(fileName)
-    res.status(201).send({url: url})
-  })
+router.get("/signed-url/:fileName", requireAuth, (req, res) => {
+  const {fileName} = req.params
+  const url = getPutSignedUrl(fileName)
+  res.status(201).json({url})
+})
 
 // Post meta data and the filename after a file is uploaded
 // NOTE the file name is they key name in the s3 bucket.
 // body : {caption: string, fileName: string};
-router.post("/",
-  requireAuth,
-  async (req, res) => {
-    const caption = req.body.caption
-    const fileName = req.body.url
+router.post("/", requireAuth, async (req, res) => {
+  const {caption, fileName} = req.body
 
-    // check Caption is valid
-    if (!caption) {
-      return res.status(400).json({message: "Caption is required or malformed"})
-    }
+  if (!caption) {
+    return res.status(400).json({error: "Caption is required."})
+  }
 
-    // check Filename is valid
-    if (!fileName) {
-      return res.status(400).json({message: "File url is required"})
-    }
+  if (!fileName) {
+    return res.status(400).json({error: "File name is required."})
+  }
 
-    // @todo
-    // const item = await new FeedItem({
-    //   caption: caption,
-    //   url: fileName,
-    // })
-
-    // const saved_item = await item.save()
-
-    // saved_item.url = getGetSignedUrl(saved_item.url)
-    // res.status(201).send(saved_item)
+  // @TODO:
+  // - Use a migration to rename the FeedItem.url column to FeedItem.fileName. Use
+  // this as a guide:
+  // https://sequelize.org/master/manual/migrations.html
+  // - Modify all code in this app to use fileName as well.
+  const item = new FeedItem({
+    caption: caption,
+    url: fileName,
   })
+
+  const savedItem = await item.save()
+
+  savedItem.url = getGetSignedUrl(savedItem.url)
+  res.status(201).json(savedItem)
+})
 
 export const FeedRouter: Router = router

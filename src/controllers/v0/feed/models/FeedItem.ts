@@ -1,8 +1,20 @@
-import {Column, CreatedAt, ForeignKey, HasMany, Model, PrimaryKey, Table, UpdatedAt} from "sequelize-typescript"
-import {User} from "../../users/models/User"
+import {Column, CreatedAt, Model, Table, UpdatedAt} from "sequelize-typescript"
+
+interface FeedItemAttributes {
+  id: number;
+  caption: string;
+  url: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface FeedItemCreationAttributes {
+  caption: string;
+  url: string;
+}
 
 @Table
-export class FeedItem extends Model<FeedItem> {
+export class FeedItem extends Model<FeedItemAttributes, FeedItemCreationAttributes> {
   @Column
   public caption!: string;
 
