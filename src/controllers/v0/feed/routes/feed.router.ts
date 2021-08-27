@@ -28,13 +28,37 @@ router.get("/:id", async (req, res) => {
   res.json(item)
 })
 
-// update a specific resource
-router.patch("/:id",
-  requireAuth,
-  async (req, res) => {
-    //@TODO try it yourself
-    res.send(500).send("not implemented")
-  })
+router.patch("/:id", requireAuth, async (req, res) => {
+  const {caption, fileName} = req.body
+  if (!caption && !fileName) {
+    return res.status(400)
+      .json({
+        error: "File name or caption must be specified.",
+      })
+  }
+
+  const {id} = req.params
+  const [numberOfUpdatedRecords, updatedRecords] = await FeedItem.update(
+    {
+      caption,
+      url: fileName,
+    },
+    {
+      where: {id},
+      returning: true,
+    }
+  )
+
+  if (numberOfUpdatedRecords === 0) {
+    return res.status(404)
+      .json({
+        error: `No record found with ID #${id}.`,
+      })
+  }
+
+  res.status(200)
+    .json(updatedRecords[0])
+})
 
 // Get a signed url to put a new item in the bucket
 router.get("/signed-url/:fileName",
@@ -56,12 +80,12 @@ router.post("/",
 
     // check Caption is valid
     if (!caption) {
-      return res.status(400).send({message: "Caption is required or malformed"})
+      return res.status(400).json({message: "Caption is required or malformed"})
     }
 
     // check Filename is valid
     if (!fileName) {
-      return res.status(400).send({message: "File url is required"})
+      return res.status(400).json({message: "File url is required"})
     }
 
     // @todo
