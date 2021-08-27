@@ -1,23 +1,32 @@
 import {Request, Response, Router} from "express"
+
 import {FeedItem} from "../models/FeedItem"
+import {getPutSignedUrl} from "../../../../aws"
 import {requireAuth} from "../../users/routes/auth.router"
-import * as AWS from "../../../../aws"
 
 const router: Router = Router()
 
-// Get all feed items
 router.get("/", async (req: Request, res: Response) => {
   const items = await FeedItem.findAndCountAll({order: [["id", "DESC"]]})
-  items.rows.map((item) => {
-    if (item.url) {
-      item.url = AWS.getGetSignedUrl(item.url)
-    }
-  })
   res.send(items)
 })
 
-//@TODO
-//Add an endpoint to GET a specific resource by Primary Key
+router.get("/:id", async (req, res) => {
+  const {id} = req.params
+  if (!id) {
+    return res.status(404).json({
+      error: "Please specify the ID of the feed item that you want to get.",
+    })
+  }
+
+  const item = await FeedItem.findByPk(id)
+  if (!item) {
+    return res.status(400)
+      .json({error: "Feed item not found."})
+  }
+
+  res.json(item)
+})
 
 // update a specific resource
 router.patch("/:id",
@@ -32,7 +41,7 @@ router.get("/signed-url/:fileName",
   requireAuth,
   async (req: Request, res: Response) => {
     const {fileName} = req.params
-    const url = AWS.getPutSignedUrl(fileName)
+    const url = getPutSignedUrl(fileName)
     res.status(201).send({url: url})
   })
 
@@ -63,7 +72,7 @@ router.post("/",
 
     // const saved_item = await item.save()
 
-    // saved_item.url = AWS.getGetSignedUrl(saved_item.url)
+    // saved_item.url = getGetSignedUrl(saved_item.url)
     // res.status(201).send(saved_item)
   })
 

@@ -61,8 +61,7 @@
     "sort-imports": [
       "error",
       {
-        "allowSeparatedGroups": true,
-        "memberSyntaxSortOrder": [ "none", "all", "single", "multiple" ]
+        "allowSeparatedGroups": true
       }
     ],
     "curly": "error",
