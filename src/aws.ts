@@ -4,9 +4,11 @@ import {config} from "./config/config"
 
 const appConfig = config.dev
 
-//Configure AWS
-const credentials = new AWS.SharedIniFileCredentials({profile: appConfig.awsProfile})
-AWS.config.credentials = credentials
+if (appConfig.awsProfile !== "DEPLOYED") {
+  // When deployed to AWS, this configuration will be done automatically by AWS.
+  const credentials = new AWS.SharedIniFileCredentials({profile: appConfig.awsProfile})
+  AWS.config.credentials = credentials
+}
 
 export const s3 = new AWS.S3({
   signatureVersion: "v4",
