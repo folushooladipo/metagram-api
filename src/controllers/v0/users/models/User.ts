@@ -1,7 +1,20 @@
 import {Column, CreatedAt, Model, PrimaryKey, Table, UpdatedAt} from "sequelize-typescript"
 
+interface UserAttributes {
+  id: number;
+  email: string;
+  password_hash: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface UserCreationAttributes {
+  email: string;
+  password_hash: string;
+}
+
 @Table
-export class User extends Model<User> {
+export class User extends Model<UserAttributes, UserCreationAttributes> {
 
   @PrimaryKey
   @Column
