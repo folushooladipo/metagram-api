@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {config as loadEnvironmentVariables} from "dotenv"
 
 loadEnvironmentVariables()
@@ -24,9 +23,9 @@ export const config = {
     database: DB_NAME,
     host: DB_HOST,
     dialect: "postgres",
-    aws_region: AWS_REGION,
-    aws_profile: AWS_PROFILE,
-    aws_media_bucket: AWS_MEDIA_BUCKET_NAME,
+    awsRegion: AWS_REGION,
+    awsProfile: AWS_PROFILE,
+    awsMediaBucket: AWS_MEDIA_BUCKET_NAME,
   },
   prod: {
     username: PROD_DB_USERNAME,

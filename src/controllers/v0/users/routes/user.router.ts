@@ -9,9 +9,9 @@ router.use("/auth", AuthRouter)
 
 router.get("/:id", async (req, res) => {
   const {id} = req.params
-  const item = await User.findByPk(id)
-  // @TODO: handle when id is not defined and when item === null.
-  res.send(item)
+  const user = await User.findByPk(id)
+  // @TODO: handle when id is not defined and when user === null.
+  res.send(user)
 })
 
 router.get("/", (req, res) => {

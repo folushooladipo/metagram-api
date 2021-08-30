@@ -5,13 +5,13 @@ import {config} from "./config/config"
 const appConfig = config.dev
 
 //Configure AWS
-const credentials = new AWS.SharedIniFileCredentials({profile: "default"})
+const credentials = new AWS.SharedIniFileCredentials({profile: appConfig.awsProfile})
 AWS.config.credentials = credentials
 
 export const s3 = new AWS.S3({
   signatureVersion: "v4",
-  region: appConfig.aws_region,
-  params: {Bucket: appConfig.aws_media_bucket},
+  region: appConfig.awsRegion,
+  params: {Bucket: appConfig.awsMediaBucket},
 })
 
 /* getGetSignedUrl generates an aws signed url to retreive an item
@@ -25,7 +25,7 @@ export function getGetSignedUrl(key: string): string{
   const signedUrlExpireSeconds = 60 * 5
 
   const url = s3.getSignedUrl("getObject", {
-    Bucket: appConfig.aws_media_bucket,
+    Bucket: appConfig.awsMediaBucket,
     Key: key,
     Expires: signedUrlExpireSeconds,
   })
@@ -43,7 +43,7 @@ export function getPutSignedUrl(key: string): string {
   const signedUrlExpireSeconds = 60 * 5
 
   const url = s3.getSignedUrl("putObject", {
-    Bucket: appConfig.aws_media_bucket,
+    Bucket: appConfig.awsMediaBucket,
     Key: key,
     Expires: signedUrlExpireSeconds,
   })
