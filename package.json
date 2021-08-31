@@ -2,12 +2,15 @@
   "name": "udacity-c2-restapi",
   "version": "1.0.0",
   "description": "Metagagram API",
+  "engines": {
+    "node" : ">=12"
+  },
   "scripts": {
     "tsc": "tsc",
     "dev": "ts-node-dev ./src/server.ts",
-    "start": "node ./www/server.js",
+    "start": "node server.js",
     "clean": "rimraf www/ || true",
-    "build": "npm run clean && tsc && cp -rf src/config www/config && cp .npmrc www/.npmrc && cp package.json www/package.json && cd www && zip -r Archive.zip . && cd ..",
+    "build": "npm run clean && tsc && cp -rf src/config www/config && cp src/us-east-1-bundle.pem www/us-east-1-bundle.pem && cp .npmrc www/.npmrc && cp package.json www/package.json && cd www && zip -r Archive.zip . && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lint-and-fix": "eslint . --fix"
