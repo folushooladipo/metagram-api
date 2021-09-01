@@ -16,10 +16,8 @@ const getPasswordHash = (plainTextPassword: string): string => {
   return bcrypt.hashSync(plainTextPassword, saltingRounds)
 }
 
-const comparePasswords = (plainTextPassword: string, hash: string): boolean => {
-// function comparePasswords(plainTextPassword: string, hash: string): Promise<boolean> {
-  //@TODO Use Bcrypt to Compare your password to your Salted Hashed Password
-  return true
+const comparePasswords = (plainTextPassword: string, hashedPassword: string): boolean => {
+  return bcrypt.compareSync(plainTextPassword, hashedPassword)
 }
 
 const generateJWT = (user: User): string => {
@@ -38,65 +36,6 @@ const generateJWT = (user: User): string => {
   return jwtToken
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  console.warn("auth.router not yet implemented, you'll cover this in lesson 5")
-  return next()
-  // if (!req.headers || !req.headers.authorization){
-  //     return res.status(401).send({ message: 'No authorization headers.' });
-  // }
-
-  // const token_bearer = req.headers.authorization.split(' ');
-  // if(token_bearer.length != 2){
-  //     return res.status(401).send({ message: 'Malformed token.' });
-  // }
-
-  // const token = token_bearer[1];
-
-  // return jwt.verify(token, "hello", (err, decoded) => {
-  //   if (err) {
-  //     return res.status(500).send({ auth: false, message: 'Failed to authenticate.' });
-  //   }
-  //   return next();
-  // });
-}
-
-router.get("/verification", requireAuth, (req, res) => {
-  return res.status(200).send({auth: true, message: "Authenticated."})
-})
-
-router.post("/login", async (req, res) => {
-  const email = req.body.email
-  const password = req.body.password
-  // check email is valid
-  if (!email || !validateEmail(email)) {
-    return res.status(400).send({auth: false, message: "Email is required or malformed"})
-  }
-
-  // check email password valid
-  if (!password) {
-    return res.status(400).send({auth: false, message: "Password is required"})
-  }
-
-  const user = await User.findByPk(email)
-  // check that user exists
-  if (!user) {
-    return res.status(401).send({auth: false, message: "Unauthorized"})
-  }
-
-  // check that the password matches
-  const authValid = await comparePasswords(password, user.password_hash)
-
-  if (!authValid) {
-    return res.status(401).send({auth: false, message: "Unauthorized"})
-  }
-
-  // Generate JWT
-  const jwt = generateJWT(user)
-
-  res.status(200).send({auth: true, token: jwt, user: user.short()})
-})
-
-// Register a new user
 router.post("/", async (req, res) => {
   const {
     email,
@@ -106,19 +45,19 @@ router.post("/", async (req, res) => {
   if (!email) {
     return res
       .status(400)
-      .json({auth: false, message: "Email is required."})
+      .json({auth: false, error: "Email is required."})
   }
 
   if (!validateEmail(email)) {
     return res
       .status(400)
-      .json({auth: false, message: "Email is not valid."})
+      .json({auth: false, error: "Email is not valid."})
   }
 
   if (!plainTextPassword) {
     return res
       .status(400)
-      .json({auth: false, message: "Password is required."})
+      .json({auth: false, error: "Password is required."})
   }
 
   // @TODO: add a check that validates that plainTextPassword has the required strength
@@ -129,7 +68,7 @@ router.post("/", async (req, res) => {
   if (user) {
     return res
       .status(422)
-      .json({auth: false, message: "User already exists."})
+      .json({auth: false, error: "User already exists."})
   }
 
   const hashedPassword = getPasswordHash(plainTextPassword)
@@ -147,7 +86,7 @@ router.post("/", async (req, res) => {
       .status(500)
       .json({
         auth: false,
-        message: "Failed to create account. Please try again.",
+        error: "Failed to create account. Please try again.",
       })
   }
 
@@ -164,6 +103,70 @@ router.post("/", async (req, res) => {
 
 router.get("/", (req, res) => {
   res.send("auth")
+})
+
+router.post("/login", async (req, res) => {
+  const {
+    email,
+    password: plainTextPassword,
+  } = req.body
+
+  if (!email) {
+    return res.status(400).json({auth: false, error: "Email is required."})
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({auth: false, error: "Email is not valid."})
+  }
+
+  if (!plainTextPassword) {
+    return res.status(400).json({auth: false, error: "Password is required."})
+  }
+
+  const user = await User.findByPk(email)
+  if (!user) {
+    return res.status(404).json({auth: false, error: "User not found."})
+  }
+
+  const authValid = comparePasswords(plainTextPassword, user.password_hash)
+  if (!authValid) {
+    return res.status(401).json({auth: false, error: "Unauthorized."})
+  }
+
+  const jwt = generateJWT(user)
+  res
+    .status(200)
+    .json({
+      message: "Account found.",
+      token: jwt,
+      user: user.short(),
+    })
+})
+
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  console.warn("auth.router not yet implemented, you'll cover this in lesson 5")
+  return next()
+  // if (!req.headers || !req.headers.authorization){
+  //     return res.status(401).send({ error: 'No authorization headers.' });
+  // }
+
+  // const token_bearer = req.headers.authorization.split(' ');
+  // if(token_bearer.length != 2){
+  //     return res.status(401).send({ error: 'Malformed token.' });
+  // }
+
+  // const token = token_bearer[1];
+
+  // return jwt.verify(token, "hello", (err, decoded) => {
+  //   if (err) {
+  //     return res.status(500).send({ auth: false, error: 'Failed to authenticate.' });
+  //   }
+  //   return next();
+  // });
+}
+
+router.get("/verification", requireAuth, (req, res) => {
+  return res.status(200).send({auth: true, message: "Authenticated."})
 })
 
 export const AuthRouter: Router = router
