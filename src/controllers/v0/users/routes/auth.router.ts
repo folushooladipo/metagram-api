@@ -1,28 +1,41 @@
 import * as bcrypt from "bcrypt"
-import * as EmailValidator from "email-validator"
 import * as jwt from "jsonwebtoken"
-import {NextFunction} from "connect"
 import {Request, Response, Router} from "express"
+import {NextFunction} from "connect"
+import {validate as validateEmail} from "email-validator"
 
 import {User} from "../models/User"
+import {config as loadEnvironmentVariables} from "dotenv"
 
+loadEnvironmentVariables()
 const router: Router = Router()
+const secondsInOneWeek = 60 * 60 * 24 * 7
 
-function generatePassword(plainTextPassword: string): string {
-// function generatePassword(plainTextPassword: string): Promise<string> {
-  //@TODO Use Bcrypt to Generated Salted Hashed Passwords
-  return "NotYetImplemented"
+const getPasswordHash = (plainTextPassword: string): string => {
+  const saltingRounds = 10
+  return bcrypt.hashSync(plainTextPassword, saltingRounds)
 }
 
-function comparePasswords(plainTextPassword: string, hash: string): boolean {
+const comparePasswords = (plainTextPassword: string, hash: string): boolean => {
 // function comparePasswords(plainTextPassword: string, hash: string): Promise<boolean> {
   //@TODO Use Bcrypt to Compare your password to your Salted Hashed Password
   return true
 }
 
-function generateJWT(user: User): string {
-  //@TODO Use jwt to create a new JWT Payload containing
-  return "NotYetImplemented"
+const generateJWT = (user: User): string => {
+  const payload = {
+    email: user.email,
+  }
+  const secondsSinceUnixEpoch = Math.floor(Date.now() / 1000)
+  const expiresIn = secondsSinceUnixEpoch + secondsInOneWeek
+  const jwtToken = jwt.sign(
+    payload,
+    process.env.JWT_SECRET,
+    {
+      expiresIn,
+    }
+  )
+  return jwtToken
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -55,7 +68,7 @@ router.post("/login", async (req, res) => {
   const email = req.body.email
   const password = req.body.password
   // check email is valid
-  if (!email || !EmailValidator.validate(email)) {
+  if (!email || !validateEmail(email)) {
     return res.status(400).send({auth: false, message: "Email is required or malformed"})
   }
 
@@ -83,46 +96,70 @@ router.post("/login", async (req, res) => {
   res.status(200).send({auth: true, token: jwt, user: user.short()})
 })
 
-//register a new user
+// Register a new user
 router.post("/", async (req, res) => {
-  const email = req.body.email
-  const plainTextPassword = req.body.password
-  // check email is valid
-  if (!email || !EmailValidator.validate(email)) {
-    return res.status(400).send({auth: false, message: "Email is required or malformed"})
+  const {
+    email,
+    password: plainTextPassword,
+  } = req.body
+
+  if (!email) {
+    return res
+      .status(400)
+      .json({auth: false, message: "Email is required."})
   }
 
-  // check email password valid
+  if (!validateEmail(email)) {
+    return res
+      .status(400)
+      .json({auth: false, message: "Email is not valid."})
+  }
+
   if (!plainTextPassword) {
-    return res.status(400).send({auth: false, message: "Password is required"})
+    return res
+      .status(400)
+      .json({auth: false, message: "Password is required."})
   }
 
-  // find the user
+  // @TODO: add a check that validates that plainTextPassword has the required strength
+  // i.e two numbers, two lowercase letters, two uppercase letters, and two symbols
+  // and, thus, at least 8 characters long.
+
   const user = await User.findByPk(email)
-  // check that user doesnt exists
   if (user) {
-    return res.status(422).send({auth: false, message: "User may already exist"})
+    return res
+      .status(422)
+      .json({auth: false, message: "User already exists."})
   }
 
-  const password_hash = await generatePassword(plainTextPassword)
+  const hashedPassword = getPasswordHash(plainTextPassword)
+  const newUser = new User({
+    email,
+    password_hash: hashedPassword,
+  })
 
-  // @todo
-  // const newUser = await new User({
-  //   email: email,
-  //   password_hash: password_hash,
-  // })
+  let savedUser
+  try {
+    savedUser = await newUser.save()
+  } catch (e) {
+    console.error(e)
+    return res
+      .status(500)
+      .json({
+        auth: false,
+        message: "Failed to create account. Please try again.",
+      })
+  }
 
-  // let savedUser
-  // try {
-  //   savedUser = await newUser.save()
-  // } catch (e) {
-  //   throw e
-  // }
+  const jwt = generateJWT(savedUser)
 
-  // // Generate JWT
-  // const jwt = generateJWT(savedUser)
-
-  // res.status(201).send({token: jwt, user: savedUser.short()})
+  res
+    .status(201)
+    .json({
+      message: "Account created.",
+      token: jwt,
+      user: savedUser.short(),
+    })
 })
 
 router.get("/", (req, res) => {
