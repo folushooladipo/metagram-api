@@ -36,6 +36,35 @@ const generateJWT = (user: User): string => {
   return jwtToken
 }
 
+const MIN_PASSWORD_LENGTH = 8
+const validatePassword = (password: string): boolean => {
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return false
+  }
+
+  const patternForNumbers = /^.*\d.*\d.*$/g
+  if (!patternForNumbers.test(password)) {
+    return false
+  }
+
+  const patternForUppercaseLetters = /^.*[A-Z].*[A-Z].*$/g
+  if (!patternForUppercaseLetters.test(password)) {
+    return false
+  }
+
+  const patternForLowercaseLetters = /^.*[a-z].*[a-z].*$/g
+  if (!patternForLowercaseLetters.test(password)) {
+    return false
+  }
+
+  const patternForSymbols = /^.*[!@#$%^&*()_+].*[!@#$%^&*()_+].*$/g
+  if (!patternForSymbols.test(password)) {
+    return false
+  }
+
+  return true
+}
+
 router.post("/", async (req, res) => {
   const {
     email,
@@ -60,9 +89,11 @@ router.post("/", async (req, res) => {
       .json({auth: false, error: "Password is required."})
   }
 
-  // @TODO: add a check that validates that plainTextPassword has the required strength
-  // i.e two numbers, two lowercase letters, two uppercase letters, and two symbols
-  // and, thus, at least 8 characters long.
+  if (!validatePassword(plainTextPassword)) {
+    return res
+      .status(400)
+      .json({error: "Password is not strong enough. It must be 8 characters long and must contain at least two uppercase letters, two lowercase letters, two symbols/punctuation marks and two numeric characters."})
+  }
 
   const user = await User.findByPk(email)
   if (user) {
