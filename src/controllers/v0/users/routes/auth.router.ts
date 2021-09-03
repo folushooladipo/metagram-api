@@ -143,30 +143,28 @@ router.post("/login", async (req, res) => {
     })
 })
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  console.warn("auth.router not yet implemented, you'll cover this in lesson 5")
-  return next()
-  // if (!req.headers || !req.headers.authorization){
-  //     return res.status(401).send({ error: 'No authorization headers.' });
-  // }
+export const requireAuth = (req: Request, res: Response, next: NextFunction): Response => {
+  if (!req.headers || !req.headers.authorization) {
+    return res.status(400).json({error: "No authorization headers were supplied."})
+  }
 
-  // const token_bearer = req.headers.authorization.split(' ');
-  // if(token_bearer.length != 2){
-  //     return res.status(401).send({ error: 'Malformed token.' });
-  // }
+  const bearerTokenParts = req.headers.authorization.split(" ")
+  if (bearerTokenParts.length !== 2) {
+    return res.status(400).json({error: "Malformed token."})
+  }
 
-  // const token = token_bearer[1];
+  const token = bearerTokenParts[1]
 
-  // return jwt.verify(token, "hello", (err, decoded) => {
-  //   if (err) {
-  //     return res.status(500).send({ auth: false, error: 'Failed to authenticate.' });
-  //   }
-  //   return next();
-  // });
+  jwt.verify(token, process.env.JWT_SECRET, (err) => {
+    if (err) {
+      return res.status(500).json({auth: false, error: "Failed to authenticate."})
+    }
+    return next()
+  })
 }
 
 router.get("/verification", requireAuth, (req, res) => {
-  return res.status(200).send({auth: true, message: "Authenticated."})
+  return res.status(200).json({auth: true, message: "Authenticated."})
 })
 
 export const AuthRouter: Router = router
