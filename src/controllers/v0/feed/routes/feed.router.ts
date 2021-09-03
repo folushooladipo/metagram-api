@@ -7,8 +7,15 @@ import {requireAuth} from "../../users/routes/auth.router"
 const router: Router = Router()
 
 router.get("/", async (req, res) => {
-  const items = await FeedItem.findAndCountAll({order: [["id", "DESC"]]})
-  res.send(items)
+  const itemsData = await FeedItem.findAndCountAll({order: [["id", "DESC"]]})
+  const itemsWithSignedGetUrls = itemsData.rows.map((item) => {
+    item.url = getGetSignedUrl(item.url)
+    return item
+  })
+  res.json({
+    count: itemsData.count,
+    rows: itemsWithSignedGetUrls,
+  })
 })
 
 router.get("/:id", async (req, res) => {
@@ -25,6 +32,7 @@ router.get("/:id", async (req, res) => {
       .json({error: "Feed item not found."})
   }
 
+  item.url = getGetSignedUrl(item.url)
   res.json(item)
 })
 
@@ -56,8 +64,10 @@ router.patch("/:id", requireAuth, async (req, res) => {
       })
   }
 
+  const item = updatedRecords[0]
+  item.url = getGetSignedUrl(item.url)
   res.status(200)
-    .json(updatedRecords[0])
+    .json(item)
 })
 
 // Get a signed url to put a new item in the bucket
