@@ -128,7 +128,7 @@ router.post("/", async (req, res) => {
     console.error("Failed to generate a JWT token because of the following error:", err)
     return res
       .status(500)
-      .json({error: "An error occurred. Please contact support."})
+      .json({error: "An error occurred. Please contact our support team."})
   }
 
   res
@@ -172,7 +172,15 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({auth: false, error: "Unauthorized."})
   }
 
-  const jwt = generateJWT(user)
+  let jwt
+  try {
+    jwt = generateJWT(user)
+  } catch (err) {
+    console.error("Failed to generate a JWT token because of the following error:", err)
+    return res
+      .status(500)
+      .json({error: "An error occurred. Please contact our support team."})
+  }
   res
     .status(200)
     .json({
