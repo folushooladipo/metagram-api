@@ -22,7 +22,7 @@ const DEFAULT_PORT = 8080;
   ]
   const corsOptions = {
     origin: (origin: string, callback: (err: Error, isKnownOrigin?: boolean) => void) => {
-      if (knownOrigins.indexOf(origin) !== -1) {
+      if (knownOrigins.indexOf(origin) !== -1 || !origin) {
         callback(null, true)
       } else {
         callback(new Error("Not allowed by CORS"))
