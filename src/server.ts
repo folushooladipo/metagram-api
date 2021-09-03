@@ -15,16 +15,24 @@ const DEFAULT_PORT = 8080;
   const port = process.env.PORT || DEFAULT_PORT
 
   app.use(parseJsonBody())
+
+  const knownOrigins = [
+    "http://localhost:8100",
+    "http://diyjqs4wvctfa.cloudfront.net",
+  ]
   const corsOptions = {
-    origin: "http://diyjqs4wvctfa.cloudfront.net",
+    origin: (origin: string, callback: (err: Error, isKnownOrigin?: boolean) => void) => {
+      if (knownOrigins.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
     optionsSuccessStatus: 200,
   }
   app.use(cors(corsOptions))
-
-  // CORS Should be restricted
   app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost:8100")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+    res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
     next()
   })
 
