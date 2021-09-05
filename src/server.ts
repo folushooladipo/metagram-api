@@ -18,8 +18,10 @@ const DEFAULT_PORT = 8080;
 
   const knownOrigins = [
     "http://localhost:8100",
-    "http://diyjqs4wvctfa.cloudfront.net",
   ]
+  if (process.env.ACTIVE_CLOUDFRONT_DISTRIBUTION) {
+    knownOrigins.push(process.env.ACTIVE_CLOUDFRONT_DISTRIBUTION)
+  }
   const corsOptions = {
     origin: (origin: string, callback: (err: Error, isKnownOrigin?: boolean) => void) => {
       if (knownOrigins.indexOf(origin) !== -1 || !origin) {
