@@ -1,0 +1,494 @@
+{
+	"info": {
+		"_postman_id": "cfcdcd8f-229b-49ba-a4d2-c8b3ce5b86e9",
+		"name": "udacity-c2-restapi",
+		"description": "Requests that should work!",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Public",
+			"item": [
+				{
+					"name": "~/feed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The count is equal to the number of expected items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.count).to.eql(jsonData.rows.length);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 600ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(600);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-home}}/feed",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed"
+							]
+						},
+						"description": "Get all the items in the feed"
+					},
+					"response": []
+				},
+				{
+					"name": "~/users/auth Create account",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"\",\n    \"password\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-home}}/users/auth",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "~/users/auth/login Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"\",\n    \"password\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-home}}/users/auth/login",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "~/feed/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"A single item is returned\", function () {",
+									"    var item = pm.response.json();",
+									"    pm.expect(item.id).to.not.eql(null);",
+									"    pm.expect(item.url).to.contain(\"https://example.com\");",
+									"    pm.expect(item.caption).to.equal(\"Sauna\");",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 300ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-home}}/feed/3",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed",
+								"3"
+							]
+						},
+						"description": "Request a specific feed item detail"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Unauthorized",
+			"item": [
+				{
+					"name": "~/feed unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{api-home}}/feed",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed"
+							]
+						},
+						"description": "Post a new item to the feed"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authorized",
+			"item": [
+				{
+					"name": "~/feed Create item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", () => {",
+									"    pm.response.to.have.status(201)",
+									"})",
+									"",
+									"pm.test(\"Returns the newly-created item\", () => {",
+									"    const createdItem = pm.response.json()",
+									"    pm.expect(createdItem.id).to.not.eql(null)",
+									"    const itemSentToAPI = JSON.parse(pm.request.body.raw)",
+									"    pm.expect(createdItem.caption).to.equal(itemSentToAPI.caption)",
+									"    pm.expect(createdItem.url).to.contain(itemSentToAPI.fileName)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"caption\": \"\",\n    \"fileName\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{api-home}}/feed",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed"
+							]
+						},
+						"description": "Post a new item to the feed"
+					},
+					"response": []
+				},
+				{
+					"name": "~/feed/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200)",
+									"})",
+									"",
+									"pm.test(\"Should return the updated record\", () => {",
+									"    const updatedItem = pm.response.json()",
+									"    pm.expect(updatedItem.id).to.not.equal(null)",
+									"    const idUsedForRequest = parseInt(pm.request.url.path[3])",
+									"    pm.expect(updatedItem.id).to.equal(idUsedForRequest)",
+									"",
+									"    const captionUsedForRequest = JSON.parse(pm.request.body.raw).caption",
+									"    pm.expect(updatedItem.caption).to.equal(captionUsedForRequest)",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fileName\": \"\",\n    \"caption\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-home}}/feed/:id",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "~/feed/signed-url/:fileName",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-home}}/feed/signed-url/:fileName",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed",
+								"signed-url",
+								":fileName"
+							],
+							"variable": [
+								{
+									"key": "fileName",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "~/users/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
+					},
+					"response": []
+				},
+				{
+					"name": "~/feed Get feed items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-home}}/feed",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"feed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "~/image/filter: Apply a filter to image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-home}}/image/filter?image_url=https://rovettidesign.com/wp-content/uploads/2011/07/clouds2.jpg",
+							"host": [
+								"{{api-home}}"
+							],
+							"path": [
+								"image",
+								"filter"
+							],
+							"query": [
+								{
+									"key": "image_url",
+									"value": "https://rovettidesign.com/wp-content/uploads/2011/07/clouds2.jpg",
+									"description": "Valid, publicly accessible image URL."
+								},
+								{
+									"key": "image_url",
+									"value": "foo",
+									"description": "Invalid image URL.",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api-home",
+			"value": "http://localhost:8080/api/v0"
+		}
+	]
+}
