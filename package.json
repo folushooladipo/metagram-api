@@ -8,7 +8,7 @@
   "scripts": {
     "tsc": "tsc",
     "dev": "NODE_ENV=local ts-node-dev ./src/server.ts",
-    "start": "node server.js",
+    "start": "NODE_ENV=local ts-node-dev ./src/server.ts",
     "clean": "rimraf www/ || true",
     "build": "npm run clean && tsc && cp -rf src/config www/config && cp src/us-east-1-bundle.pem www/us-east-1-bundle.pem && cp .npmrc www/.npmrc && cp package.json www/package.json && cd www && zip -r Archive.zip . && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
