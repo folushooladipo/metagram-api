@@ -17,7 +17,7 @@ const DEFAULT_PORT = 8080;
   app.use(parseJsonBody())
 
   const knownOrigins = [
-    "http://localhost:8100",
+    "http://localhost:4200",
   ]
   if (process.env.ACTIVE_CLOUDFRONT_DISTRIBUTION) {
     knownOrigins.push(process.env.ACTIVE_CLOUDFRONT_DISTRIBUTION)
